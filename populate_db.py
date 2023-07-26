@@ -42,6 +42,10 @@ def write_to_db(row_dict, curr_block_db_path):
     # Create table "annot" if it doesnt extis, with "table_cols" as column names and "table_types" as their data types:
     c.execute("CREATE TABLE IF NOT EXISTS annot (" +
               ','.join([f'{col} {table_types[i]}' for i, col in enumerate(table_cols)]) + ")")
+    # Create an index on the "index_var" column of the "annot" table
+    c.execute("CREATE UNIQUE INDEX IF NOT EXISTS index_var_idx ON annot (index_var)")
+    conn.commit()
+
     # Check if row already exists in db:
     c.execute("SELECT * FROM annot WHERE index_var=?", (index_var,))
     # If row does not exist, insert it:
@@ -55,6 +59,9 @@ def write_to_db(row_dict, curr_block_db_path):
         old_row = c.fetchone()
         # Create a dictionary from the old row:
         old_row_dict = dict(zip(table_cols, old_row))
+        # delete the old row from the db:
+        c.execute("DELETE FROM annot WHERE index_var=?", (index_var,))
+        conn.commit()
         # Concatenate the old and new "REVEL" scores, sep by comma:
         row_dict['REVEL'] = old_row_dict['REVEL'] + \
             "," + row_dict['REVEL']
