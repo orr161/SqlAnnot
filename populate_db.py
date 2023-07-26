@@ -1,11 +1,11 @@
 import sqlite3
 import gzip
+import sys
 import csv
 
-# Path to the annotations file is first arugment, path to the db is second
-# sys.argv[1]
-annot_path = "/gpfs/scratch/yaacoo01/sqlite_revel/revel_head.csv.gz"
-db_path = "/gpfs/scratch/yaacoo01/sqlite_revel/revel"  # sys.argv[2]
+# Path to the annotations file is first arugment, path to the db dir is second
+annot_path = sys.argv[1]
+db_path = sys.argv[2]
 
 # Generate a path for the block db:
 
@@ -93,11 +93,16 @@ with gzip.open(annot_path, 'rt') as f:
             row_num += 1
             curr_block_db_path = block_db_path(
                 db_path, row_dict['chr'], row_dict['grch38_pos'])
+            # Skip if grch38_pos cant be case into int:
+            try:
+                int(row_dict['grch38_pos'])
+            except: 
+                continue
             # write to db:
             write_to_db(row_dict, curr_block_db_path)
-            # Increase the row number count, print the row number count every 100 rows, and continue:
+            # Increase the row number count, print the row number count every 10000 rows, and continue:
             row_num += 1
-            if row_num % 100 == 0:
+            if row_num % 10000 == 0:
                 print(row_num)
                 continue
             else:
