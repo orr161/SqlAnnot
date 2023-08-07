@@ -96,7 +96,7 @@ with gzip.open(annot_path, 'rt') as f:
             # Skip if grch38_pos cant be case into int:
             try:
                 int(row_dict['grch38_pos'])
-            except: 
+            except:
                 continue
             # write to db:
             write_to_db(row_dict, curr_block_db_path)
